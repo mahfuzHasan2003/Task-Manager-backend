@@ -16,13 +16,11 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
-const run = async () => {
+const connectDB = async () => {
   try {
     await client.connect();
     await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    console.log("✅ Connected to MongoDB");
 
     //  DB and collections
     const database = client.db("task_manager");
@@ -53,22 +51,36 @@ const run = async () => {
       }
     });
     //  add user to DB
-    app.post("user", async (req, res) => {
+    app.post("/user", async (req, res) => {
       try {
-        //
+        const userData = req.body;
+        await usersCollection.updateOne(
+          { email: userData.email },
+          {
+            $set: {
+              lastLogin: new Date(),
+            },
+            $setOnInsert: { ...userData, createdAt: new Date() },
+          },
+          { upsert: true }
+        );
+        res.status(200).send({
+          success: true,
+          message: "Successfully added/updated user data in DB.",
+        });
       } catch (error) {
         console.error("Error adding user to DB:", error);
         res.status(500).send({
           success: false,
-          message: "Something went wrong. Please try again later.",
+          message: "Your data was not saved. Please try again later.",
         });
       }
     });
-  } finally {
-    await client.close();
+  } catch (error) {
+    console.error("❌ MongoDB Connection Error:", error);
   }
 };
-run().catch(console.dir);
+connectDB();
 
 app.listen(port, () => {
   console.log(`App listening on ${port}`);
