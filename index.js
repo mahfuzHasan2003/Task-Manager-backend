@@ -100,7 +100,7 @@ io.on("connection", (socket) => {
       const { _id, email, ...taskData } = updatedTask;
       await tasksCollection.updateOne(
         { _id: new ObjectId(_id) },
-        { $set: taskData }
+        { $set: { ...taskData } }
       );
       await emitUpdatedTasks(email);
     } catch (error) {
