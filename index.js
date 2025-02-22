@@ -20,6 +20,7 @@ const io = new Server(server, {
 });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.xggde.mongodb.net/task_manager?retryWrites=true&w=majority&appName=Cluster0`;
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -38,9 +39,6 @@ async function connectDB() {
     const database = client.db("task_manager");
     usersCollection = database.collection("users_collection");
     tasksCollection = database.collection("user_tasks_collection");
-
-    const testUser = await usersCollection.findOne({});
-    console.log("🔎 Test Query Success:", testUser);
   } catch (error) {
     console.error("❌ MongoDB Connection Error:", error);
     process.exit(1);
