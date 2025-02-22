@@ -32,12 +32,15 @@ let usersCollection, tasksCollection;
 
 async function connectDB() {
   try {
-    // await client.connect();
+    await client.connect();
     // await client.db("admin").command({ ping: 1 });
     console.log("✅ Connected to MongoDB");
     const database = client.db("task_manager");
     usersCollection = database.collection("users_collection");
     tasksCollection = database.collection("user_tasks_collection");
+
+    const testUser = await usersCollection.findOne({});
+    console.log("🔎 Test Query Success:", testUser);
   } catch (error) {
     console.error("❌ MongoDB Connection Error:", error);
     process.exit(1);
