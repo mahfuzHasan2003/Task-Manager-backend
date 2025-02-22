@@ -145,7 +145,7 @@ async function getNextOrder(email, status) {
   );
   return lastTask ? lastTask.order + 1 : 0;
 }
-
+// server root route
 app.get("/", async (req, res) => {
   res.status(200).send({ message: "Server is running" });
 });
@@ -154,7 +154,7 @@ app.get("/", async (req, res) => {
 app.post("/user", async (req, res) => {
   try {
     const userData = req.body;
-    await usersCollection.updateOne(
+    const result = await usersCollection.updateOne(
       { email: userData.email },
       {
         $set: {
@@ -164,6 +164,17 @@ app.post("/user", async (req, res) => {
       },
       { upsert: true }
     );
+    // add a simple data for reactour!!
+    if (result.upsertedCount === 1) {
+      await tasksCollection.insertOne({
+        email: userData.email,
+        title: "Welcome Task",
+        description: "This is your first task. Edit or delete it!",
+        status: "todo",
+        timestamp: new Date(),
+        order: await getNextOrder(email, taskData.status),
+      });
+    }
     res.status(200).send({
       success: true,
       message: "Successfully added/updated user data in DB.",
