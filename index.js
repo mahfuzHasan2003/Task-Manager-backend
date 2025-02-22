@@ -172,7 +172,7 @@ app.post("/user", async (req, res) => {
         description: "This is your first task. Edit or delete it!",
         status: "todo",
         timestamp: new Date(),
-        order: await getNextOrder(userData.email, taskData.status),
+        order: await getNextOrder(userData.email, "todo"),
       });
     }
     res.status(200).send({
