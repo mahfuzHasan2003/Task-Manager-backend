@@ -174,6 +174,7 @@ app.post("/user", async (req, res) => {
         timestamp: new Date(),
         order: await getNextOrder(userData.email, "todo"),
       });
+      await emitUpdatedTasks(userData.email);
     }
     res.status(200).send({
       success: true,
