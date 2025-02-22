@@ -150,6 +150,34 @@ app.get("/", async (req, res) => {
   res.status(200).send({ message: "Server is running" });
 });
 
+// add user data to DB when first login and update last login timestamp every time
+app.post("/user", async (req, res) => {
+  try {
+    const userData = req.body;
+    await usersCollection.updateOne(
+      { email: userData.email },
+      {
+        $set: {
+          lastLogin: new Date(),
+        },
+        $setOnInsert: { ...userData, createdAt: new Date() },
+      },
+      { upsert: true }
+    );
+    res.status(200).send({
+      success: true,
+      message: "Successfully added/updated user data in DB.",
+    });
+  } catch (error) {
+    console.error("Error adding user to DB:", error);
+    res.status(500).send({
+      success: false,
+      message:
+        "Your login data was not saved to database. Please try again later.",
+    });
+  }
+});
+
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
